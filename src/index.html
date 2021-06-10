@@ -36,7 +36,7 @@
 		require.config({ paths: { vs: '../node_modules/monaco-editor/min/vs' } });
 		require(['vs/editor/editor.main'], function () {
 			window.editor = monaco.editor.create(document.getElementById('codeEditor'), {
-				value: ['#include <iostream>', 'using namespace std;', '', 'int main (){','\tcout << "Hello World" << endl;', '}'].join('\n'),
+				value: ['void solve() {', '\t//enter your code here', '}'].join('\n'),
 				language: 'cpp',
         theme: 'vs-dark',
         automaticLayout: true

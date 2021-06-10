@@ -36,16 +36,36 @@ const createWindow = () => {
 ipcMain.on('insert-compile-code', (event, arg) => {
   console.log('--------------------------------------------------------------------------------------')
   let text = arg
+  var bottom
+  var top
   text = text.replace(/\n/g, "\r\n");
-  
-  // Write Contents to test.cpp
-  console.log('Inserting code into test.cpp')
-  fs.writeFile('test.cpp', text, (error) => { 
+
+  console.log('Reading top.cpp')
+  fs.readFile('top.cpp', 'utf8', (error , data) => {
     if (error) {
-      console.log('Could not insert code in test.cpp')
+      console.log('Could not read top.cpp')
       event.reply('code-not-compiled', 'File System Error')
       return 
     } 
+    text = data + text
+    console.log('Reading bottom.cpp')
+    fs.readFile('bottom.cpp', 'utf8', (error , data) => {
+      if (error) {
+        console.log('Could not read bottom.cpp')
+        event.reply('code-not-compiled', 'File System Error')
+        return 
+      } 
+      text = text + data 
+      // Write Contents to test.cpp
+      console.log('Inserting code into test.cpp')
+      fs.writeFile('test.cpp', text, (error) => { 
+        if (error) {
+          console.log('Could not insert code in test.cpp')
+          event.reply('code-not-compiled', 'File System Error')
+          return 
+        } 
+      })
+    })
   })
 
   // Compile test.cpp and make executable

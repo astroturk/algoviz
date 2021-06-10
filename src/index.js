@@ -187,7 +187,7 @@ async function runBarChart(barGraphDataList){
     myChart.data.datasets[0].backgroundColor = barGraphData.colors
     myChart.data.labels = barGraphData.labels
     myChart.update()
-    await sleep(10)
+    await sleep(1000)
   }
 
   handleEnableSubmitButton()
@@ -221,44 +221,6 @@ ipcRenderer.on('code-compiled', async (event, arg) => {
   } else {
     runBarChart(data)
   }
-  /*console.log('Creating nodes data')
-  var nodes = new vis.DataSet([
-    { id: 1, label: '1' },
-    { id: 2, label: '2' },
-    { id: 3, label: '3' },
-    { id: 4, label: '4' },
-    { id: 5, label: '5' },
-  ])
-
-  console.log('Creating edge data')
-  var edges  = new vis.DataSet([
-    { from: 1, to: 3 },
-    { from: 1, to: 2 },
-    { from: 2, to: 4 },
-    { from: 2, to: 5 },
-    { from: 3, to: 3 },
-  ])
-  
-  console.log('Selecting container as av')
-
-  nodes = new vis.DataSet([
-    { id: 1, label: '1' },
-    { id: 2, label: '2' },
-    { id: 3, label: '3' },
-    { id: 4, label: '4' },
-    { id: 5, label: '5' },
-  ])
-
-  edges  = new vis.DataSet([
-    { from: 1, to: 3 },
-    { from: 1, to: 2 },
-    { from: 2, to: 4 },
-    { from: 2, to: 5 },
-    { from: 3, to: 3 },
-  ])
-  network.setData({nodes: nodes, edges: edges})
-  await new Promise(r => setTimeout(r, 2000));
-  network.destroy()*/
 })
 
 ipcRenderer.on('code-not-compiled', (event, arg) => {

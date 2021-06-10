@@ -317,9 +317,7 @@ public:
         flag_graph = 0;
         Print(1);
     }
-};
-
-Vector Vec;
+};Vector Vec;
 
 void bubble(vector<int> &v, int n)
 {
@@ -336,7 +334,7 @@ void bubble(vector<int> &v, int n)
 
 void solve()
 {
-    vector<int> v = {59,4,44,89,18,98,34,100,82,37,52,75,36,46,80,23,31,63,68,32,30,66,90,99,96,83,2,9,65,5,67,70,35,81,92,9};
+    vector<int> v = {12, 8, 14, 5, 2};
     int n = v.size();
     for (int i = 0; i < n; i++)
     {
@@ -344,9 +342,7 @@ void solve()
     }
     Vec.CreateVector();
     bubble(v, n);
-}
-//// DO NOT DISTURB INT MAIN///////
-int main()
+}int main()
 {
     cout << "{\"data\":[";
     solve();
