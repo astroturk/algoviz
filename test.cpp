@@ -1,101 +1,362 @@
 #include <bits/stdc++.h>
 #include <iostream>
 using namespace std;
+string default_color = "#2E2EFF";
+string white = "#ffffff";
+bool flag_graph = 0;
+bool flag_vector = 0;
+bool flag_label = 0;
 
-string code;
-string var;
+class Graph
+{
+private:
+    map<pair<int, int>, string> edge_color;
+    map<pair<int, int>, int> edge_label;
+    map<pair<int, int>, int> edge_id;
+    map<int, int> node_id;
+    map<int, string> node_color;
+    int nodes_count = 0;
+    int edge_count = 0;
+    void Print(bool is_first)
+    {
+        if (!flag_graph)
+            return;
+        if (!is_first)
+            cout << ",";
+        cout << "{";
+        PrintNodes();
+        PrintEdges();
+        cout << "}";
+    }
 
-class V{
-    private:
-    vector<int> v;
-    int sz=0;
+    void PrintNodes()
+    {
+        cout << "\"nodes\":[";
+        int counter = 0;
+        for (auto u : node_id)
+        {
+            counter++;
+            if (counter > 1)
+                cout << ",";
+            cout << "{";
+            cout << "\"id\":" << u.first << ","
+                 << "\"label\":"
+                 << "\"" << to_string(u.first) << "\""
+                 << ","
+                 << "\"color\":"
+                 << "\"" << node_color[u.first] << "\"";
+            cout << "}";
+        }
+        cout << "],";
+    }
 
-    public:
-    V(){
-        code+="var v = jsav.ds.array([]);";
-        var+="\"v\",";
-    }
-    V(int n,int val){
-        code+="var v = jsav.ds.array([]);";
-        var+="\"v\",";
-        sz = n;
-        v.assign(n,val);
-         for(int i = 0;i<sz;i++){
-            code+="v.value("+to_string(i)+","+to_string(val)+");";
+    void PrintEdges()
+    {
+        cout << "\"edges\":[";
+        int counter = 0;
+        for (auto u : edge_id)
+        {
+            counter++;
+            if (counter > 1)
+                cout << ",";
+            cout << "{";
+            cout << "\"id\":" << u.second << ",";
+            if (flag_label)
+                cout << "\"label\":"
+                        "\""
+                     << edge_label[u.first] << "\"";
+
+            cout << "\"color\":"
+                 << "\"" << edge_color[u.first] << "\""
+                 << ","
+                 << "\"from\":" << u.first.first
+                 << ","
+                 << "\"to\":" << u.first.second;
+            cout << "}";
         }
+        cout << "]";
     }
-    void push_back(int val){
-        v.push_back(val);
-        code+="v.value("+to_string(sz)+","+to_string(val)+");";
-        sz++;
+
+public:
+    void AddNode(int label, string color)
+    {
+        nodes_count++;
+        node_id[label] = label;
+        node_color[label] = color;
+        Print(0);
     }
-    void pop_back(){
-        v.pop_back();
-        code+="v.value("+to_string(sz-1)+","+"''"+");";
-        sz--;
+
+    void AddNode(int label)
+    {
+        nodes_count++;
+        node_id[label] = label;
+        node_color[label] = default_color;
+        Print(0);
     }
-    int size(){
-        sz = v.size();
-        return sz;
+
+    void AddEdge(int from, int to, int label, string color)
+    {
+        flag_label = 1;
+        edge_count++;
+        edge_color[{from, to}] = color;
+        edge_label[{from, to}] = label;
+        edge_id[{from, to}] = edge_count;
+        Print(0);
     }
-    int get(int ind){
-        return v[ind];
+
+    void AddEdge(int from, int to, int label)
+    {
+        flag_label = 1;
+        edge_count++;
+        edge_color[{from, to}] = default_color;
+        edge_label[{from, to}] = label;
+        edge_id[{from, to}] = edge_count;
+        Print(0);
     }
-    void set(int ind,int val){
-        v[ind] = val;
-        code+="v.value("+to_string(ind)+","+to_string(val)+");";
+
+    void AddEdge(int from, int to, string color)
+    {
+        edge_count++;
+        edge_color[{from, to}] = color;
+        edge_id[{from, to}] = edge_count;
+
+        Print(0);
     }
-    void sort_V(int l,int r){
-        sort(v.begin()+l,v.begin()+r);
-        for(int i = 0;i<r;i++){
-            code+="v.value("+to_string(i)+","+to_string(v[i])+");";
-        }
+
+    void AddEdge(int from, int to)
+    {
+        edge_count++;
+        edge_color[{from, to}] = default_color;
+        edge_id[{from, to}] = edge_count;
+        Print(0);
     }
-    void assign(int n,int val){
-        sz = n;
-        v.assign(n,val);
-         for(int i = 0;i<sz;i++){
-            code+="v.value("+to_string(i)+","+to_string(val)+");";
-        }
+
+    void RemoveEdge(int from, int to)
+    {
+        edge_color[{from, to}] = white;
+        Print(0);
     }
-    void swap_V(int i,int j){
-        swap(v[i],v[j]);
-        code+="v.swap("+to_string(i)+","+to_string(j)+");";
+    void RemoveNode(int label)
+    {
+        node_color[label] = white;
+        Print(0);
     }
-    
+    void ColorNode(int label, string color)
+    {
+        node_color[label] = color;
+        Print(0);
+    }
+    void ColorNode(int label)
+    {
+        node_color[label] = default_color;
+        Print(0);
+    }
+    void ColorEdge(int from, int to, string color)
+    {
+        edge_color[{from, to}] = color;
+        Print(0);
+    }
+    void ColorEdge(int from, int to)
+    {
+        edge_color[{from, to}] = default_color;
+        Print(0);
+    }
+    void EdgeLabel(int from, int to, int label)
+    {
+        edge_label[{from, to}] = label;
+        flag_label = 1;
+    }
+    void CreateGraph()
+    {
+        flag_graph = 1;
+        flag_vector = 0;
+        Print(1);
+    }
 };
 
-void start(){
-}
-void end(){
-	var.pop_back();
-    cout<<"{\"code\":\"";
-    cout<<code;
-    cout<<"\",\"var\":[";
-    cout<<var;
-    cout<<"]}";
-}
-void viz(){
-    code+="jsav.step();";
+class Vector
+{
+private:
+    vector<int> values;
+    vector<string> colors;
+    void Print(bool is_first)
+    {
+        if (!flag_vector)
+            return;
+        if (!is_first)
+            cout << ",";
+        cout << "{";
+        PrintValues();
+        PrintColors();
+        PrintLabels();
+        cout << "}";
+    }
+    void PrintValues()
+    {
+        cout << "\"values\":[";
+        int counter = 0;
+        for (auto u : values)
+        {
+            counter++;
+            if (counter > 1)
+                cout << ",";
+            cout << u;
+        }
+        cout << "],";
+    }
+    void PrintColors()
+    {
+        cout << "\"colors\":[";
+        int counter = 0;
+        for (auto u : colors)
+        {
+            counter++;
+            if (counter > 1)
+                cout << ",";
+            cout << "\"" << u << "\"";
+        }
+        cout << "],";
+    }
+    void PrintLabels()
+    {
+        cout << "\"labels\":[";
+        int counter = 0;
+        for (int i = 0; i < int(values.size()); i++)
+        {
+            counter++;
+            if (counter > 1)
+                cout << ",";
+            cout << "\"" << i << "\"";
+        }
+        cout << "]";
+    }
+
+public:
+    void PushBack(int val)
+    {
+        values.push_back(val);
+        colors.push_back(default_color);
+        Print(0);
+    }
+    void PushBack(int val, string color)
+    {
+        values.push_back(val);
+        colors.push_back(color);
+        Print(0);
+    }
+    void PopBack()
+    {
+        values.pop_back();
+        colors.pop_back();
+        Print(0);
+    }
+    void Swap(int i, int j, bool with_color)
+    {
+        swap(values[i], values[j]);
+        if (with_color)
+            swap(colors[i], colors[j]);
+        Print(0);
+    }
+    void Swap(int i, int j, bool with_color, string color)
+    {
+        string ti = colors[i];
+        string tj = colors[j];
+        colors[i] = colors[j] = color;
+        Print(0);
+        swap(values[i], values[j]);
+        Print(0);
+        colors[i] = ti;
+        colors[j] = tj;
+        if (with_color)
+            swap(colors[i], colors[j]);
+        Print(0);
+    }
+    void SetColor(int i, string color)
+    {
+        colors[i] = color;
+        Print(0);
+    }
+    void SetValue(int i, int val)
+    {
+        values[i] = val;
+        Print(0);
+    }
+    void Sort(int i, int j, bool with_color)
+    {
+        sort(values.begin() + i, values.end() + j);
+        if (with_color)
+        {
+            sort(colors.begin() + i, colors.end() + j);
+        }
+    }
+    void Reverse(int i, int j, bool with_color)
+    {
+        reverse(values.begin() + i, values.end() + j);
+        if (with_color)
+        {
+            reverse(colors.begin() + i, colors.end() + j);
+        }
+    }
+    void Resize(int size)
+    {
+        values.resize(size);
+        colors.resize(size);
+    }
+    void Assign(int size, int val, string color)
+    {
+        values.assign(size, val);
+        colors.assign(size, color);
+    }
+    void Assign(int size, int val)
+    {
+        values.assign(size, val);
+    }
+    void CreateVector()
+    {
+        flag_vector = 1;
+        flag_graph = 0;
+        Print(1);
+    }
+};
+
+Vector Vec;
+
+void bubble(vector<int> &v, int n)
+{
+
+    int i, j;
+    for (i = 0; i < n - 1; i++)
+        for (j = 0; j < n - i - 1; j++)
+            if (v[j] > v[j + 1])
+            {
+                swap(v[j], v[j + 1]);
+                Vec.Swap(j, j+1, 0, "#ed3528");
+            }
 }
 
-int main(){
-    start();
-    V a;
-    a.push_back(3);
-    a.push_back(8);
-    a.push_back(4);
-    a.push_back(6);
-    a.push_back(5);
-    a.push_back(7);
-    viz();
-    a.sort_V(0,a.size());
-    viz();
-    int sz = a.size();
-    a.set(0,1);
-    for(int i=0;i<=(sz-1)/2;i++){
-        a.swap_V(i,sz-i-1);
-        viz();
+void solve()
+{
+    vector<int> v = {59,4,44,89,18,98,34,100,82,37,52,75,36,46,80,23,31,63,68,32,30,66,90,99,96,83,2,9,65,5,67,70,35,81,92,9};
+    int n = v.size();
+    for (int i = 0; i < n; i++)
+    {
+        Vec.PushBack(v[i]);
     }
-    end();
+    Vec.CreateVector();
+    bubble(v, n);
+}
+//// DO NOT DISTURB INT MAIN///////
+int main()
+{
+    cout << "{\"data\":[";
+    solve();
+    cout << "],";
+    cout << "\"type\":";
+    if (flag_graph)
+        cout << "\"Graph\"";
+    else if (flag_vector)
+        cout << "\"Vector\"";
+    else
+        cout << "\"Blank\"";
+    cout << "}";
 }

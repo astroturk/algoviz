@@ -34,32 +34,41 @@ const createWindow = () => {
 
 // Upon recieving c++ code snippet from Renderer Process
 ipcMain.on('insert-compile-code', (event, arg) => {
+  console.log('--------------------------------------------------------------------------------------')
   let text = arg
   text = text.replace(/\n/g, "\r\n");
   
   // Write Contents to test.cpp
+  console.log('Inserting code into test.cpp')
   fs.writeFile('test.cpp', text, (error) => { 
     if (error) {
+      console.log('Could not insert code in test.cpp')
       event.reply('code-not-compiled', 'File System Error')
       return 
     } 
   })
 
   // Compile test.cpp and make executable
+  console.log('Compiling test.cpp to test')
   exec('g++ test.cpp -o test', (error, stdout, stderr) => {
     if (error) {
+      console.log('Could not run cmd: g++ test.cpp -o test')
       event.reply('code-not-compiled', 'Cannot Execute Command')
       return
     }
 
     // Execute test
+    console.log('Executing compiled file test')
     exec('./test', (error, stdout, stderr) => {
       if (error) {
+        console.log('Could not run: ./test')
         event.reply('code-not-compiled', 'Cannot Execute Command')
         return
       }
       
       // Send reply to Renderer
+      console.log('Code compiled and executed')
+      console.log('Sending stdout to Renderer process')
       event.reply('code-compiled', stdout)
     })
   })

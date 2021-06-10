@@ -1,101 +1,162 @@
 #include <bits/stdc++.h>
 #include <iostream>
 using namespace std;
+const int salt = 848296207;
 
-string code;
-string var;
+class Graph
+{
+private:
+    map<pair<int, int>, pair<int, int>> edge_map;
+    int nodes_count = 0;
+    int edge_count = 0;
+    unordered_set<int> nodes_high;
+    unordered_set<int> edges_high;
 
-class V{
-    private:
-    vector<int> v;
-    int sz=0;
+    void print()
+    {
+        printNodes();
+        printEdges();
+        printSelections();
+    }
+    void printNodes()
+    {
+        cout << "{\"nodes\":[";
+        for (int i = 0; i < nodes_count; i++)
+        {
+            cout << "{\"id\":" << i << ",\"label\":" << i << "}";
+            if (i != nodes_count - 1)
+                cout << ",";
+        }
+        cout << "],";
+    }
+    void printEdges()
+    {
+        cout << "\"edges\":[";
+        auto it = edge_map.begin();
+        int dummy = 0;
+        for (it; it != edge_map.end(); it++)
+        {
+            dummy++;
+            cout << "{\"from\":" << it->first.first << ",\"to\":" << it->first.second << ",\"id\":" << it->second.first;
+            if (it->second.second != salt)
+                cout << ",\"label\":" << it->second.second;
+            cout << "}";
+            if (dummy != edge_count)
+                cout << ",";
+        }
+        cout << "],";
+    }
+    void printSelections()
+    {
+        cout << "\"selections\":{";
+        cout << "\"nodes\":[";
+        int dummy = 0;
+        int sz = nodes_high.size();
+        for (auto u : nodes_high)
+        {
+            dummy++;
+            cout << u;
+            if (dummy != sz)
+                cout << ",";
+        }
+        cout << "],";
+        cout << "\"edges\":[";
+        dummy = 0;
+        sz = edges_high.size();
+        for (auto u : edges_high)
+        {
+            dummy++;
+            cout << u;
+            if (dummy != sz)
+                cout << ",";
+        }
+        cout << "]";
+        cout << "}},";
+    }
 
-    public:
-    V(){
-        code+="var v = jsav.ds.array([]);";
-        var+="\"v\",";
+public:
+    void TotalNodes(int n)
+    {
+        nodes_count = n;
     }
-    V(int n,int val){
-        code+="var v = jsav.ds.array([]);";
-        var+="\"v\",";
-        sz = n;
-        v.assign(n,val);
-         for(int i = 0;i<sz;i++){
-            code+="v.value("+to_string(i)+","+to_string(val)+");";
-        }
+    void AddEdge(int from, int to)
+    {
+        edge_map[{from, to}] = {edge_count, salt};
+        edge_count++;
+        print();
     }
-    void push_back(int val){
-        v.push_back(val);
-        code+="v.value("+to_string(sz)+","+to_string(val)+");";
-        sz++;
+    void AddEdge(int from, int to, int label)
+    {
+        edge_map[{from, to}] = {edge_count, label};
+        edge_count++;
+        print();
     }
-    void pop_back(){
-        v.pop_back();
-        code+="v.value("+to_string(sz-1)+","+"''"+");";
-        sz--;
+    void removeEdge(int from, int to)
+    {
+        edge_map.erase({from, to});
+        edge_count--;
+        print();
     }
-    int size(){
-        sz = v.size();
-        return sz;
+    void HighlightNode(int id)
+    {
+        nodes_high.insert(id);
+        print();
     }
-    int get(int ind){
-        return v[ind];
+    void HighlightEdge(int from, int to)
+    {
+        edges_high.insert(edge_map[{from, to}].first);
+        print();
     }
-    void set(int ind,int val){
-        v[ind] = val;
-        code+="v.value("+to_string(ind)+","+to_string(val)+");";
+    void DimNode(int id)
+    {
+        nodes_high.erase(id);
+        print();
     }
-    void sort_V(int l,int r){
-        sort(v.begin()+l,v.begin()+r);
-        for(int i = 0;i<r;i++){
-            code+="v.value("+to_string(i)+","+to_string(v[i])+");";
-        }
+    void DimEdge(int from, int to)
+    {
+        edges_high.erase(edge_map[{from, to}].first);
+        print();
     }
-    void assign(int n,int val){
-        sz = n;
-        v.assign(n,val);
-         for(int i = 0;i<sz;i++){
-            code+="v.value("+to_string(i)+","+to_string(val)+");";
-        }
-    }
-    void swap_V(int i,int j){
-        swap(v[i],v[j]);
-        code+="v.swap("+to_string(i)+","+to_string(j)+");";
-    }
-    
 };
 
-void start(){
-}
-void end(){
-	var.pop_back();
-    cout<<"{\"code\":\"";
-    cout<<code;
-    cout<<"\",\"var\":[";
-    cout<<var;
-    cout<<"]}";
-}
-void viz(){
-    code+="jsav.step();";
+vector<vector<int>> adj;
+Graph G;
+
+void dfs(int v)
+{
+    G.HighlightNode(v);
+    for (auto u : adj[v])
+    {
+        G.HighlightEdge(v, u);
+        dfs(u);
+        G.DimEdge(v, u);
+    }
+    G.DimNode(v);
 }
 
-int main(){
-    start();
-    V a;
-    a.push_back(3);
-    a.push_back(8);
-    a.push_back(4);
-    a.push_back(6);
-    a.push_back(5);
-    a.push_back(7);
-    viz();
-    a.sort_V(0,a.size());
-    viz();
-    int sz = a.size();
-    a.set(0,1);
-    for(int i=0;i<=(sz-1)/2;i++){
-        a.swap_V(i,sz-i-1);
-        viz();
-    }
-    end();
+void solve()
+{
+    int n = 7;
+    adj.assign(n, vector<int>(0));
+    G.TotalNodes(n);
+    adj[0].push_back(1);
+    adj[0].push_back(2);
+    adj[1].push_back(3);
+    adj[1].push_back(4);
+    adj[2].push_back(5);
+    adj[2].push_back(6);
+    G.AddEdge(0, 2);
+    G.AddEdge(0, 1);
+    G.AddEdge(1, 3);
+    G.AddEdge(1, 4);
+    G.AddEdge(2, 5);
+    G.AddEdge(2, 6);
+    dfs(0);
+}
+//// DO NOT DISTURB INT MAIN///////
+int main()
+{
+    cout<<"{\"data\":[";
+    solve();
+    cout<<"{}]}";
 }
